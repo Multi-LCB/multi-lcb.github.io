@@ -1,0 +1,28 @@
+{
+  "name": "mera-page",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "homepage": "https://Multi-LCB.github.io/multilcb.github.io",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build && cp dist/index.html dist/404.html",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "deploy": "npx gh-pages -d dist"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "@tsconfig/svelte": "^5.0.4",
+    "@types/page": "^1.11.9",
+    "gh-pages": "^6.3.0",
+    "svelte": "^5.28.1",
+    "svelte-check": "^4.1.6",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-singlefile": "^2.2.0"
+  },
+  "dependencies": {
+    "page": "^1.11.6"
+  }
+}
