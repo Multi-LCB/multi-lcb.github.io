@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 
 # Load data
-data_files = glob.glob("swe-mera/data/**.json")
+data_files = glob.glob("lcb/data/**.json")
 df = pd.concat([pd.read_json(fn) for fn in data_files], ignore_index=True)
 df.drop(columns='task_id', inplace=True)
 
@@ -27,7 +27,7 @@ def summarize_model(group):
         "pass@1_std": group['pass@1'].std() / np.sqrt(len(group)),
         "pass@5": group['pass@5'].mean(),
         "n_task": len(group),
-        "trajectory": f'<a href="http://github.com/mera/swe-mera/trajectory/{model_name}">trajectory</a>'
+        "trajectory": f'<a href="http://github.com/padap/tbd/{model_name}">trajectory</a>'
     })
 
 summary_df = df_filtered.groupby("model").apply(summarize_model).reset_index()

@@ -8,7 +8,7 @@
   import { language } from "./store/languageStore";
   import { getTextByLang } from "./utils/getTextByLang";
   import LinksHeaderButton from "./components/LinksHeaderButton.svelte";
-  import logoMera from "/logo.svg";
+  import logoLCB from "/logo.svg";
   import headerLogo from "/headerLogo.svg";
   import dataLogo from '/dataLogo.svg';
   import codeLogo from '/codeLogo.svg';
@@ -46,7 +46,7 @@
 </script>
 
 <header class="header">
-  <a href="/demo-swe-mera"
+  <a href="/live-lcb"
     ><img class="header-logo" src={headerLogo} alt="логотип" /></a
   >
   <div class="toggle-wrapper">
@@ -59,7 +59,7 @@
     <NavigateButton
       buttonText={getTextByLang("leaderboard", lang)}
       imgSrc={LeaderBoardIcon}
-      link="/demo-swe-mera/leaderboard"
+      link="/live-lcb/leaderboard"
     />
     <ToggleSwitch
       bind:value={$language}
@@ -72,7 +72,7 @@
 </header>
 
 <div class="intro-text">
-  <img class="intro-logo" src={logoMera} alt="Логотип" />
+  <img class="intro-logo" src={logoLCB} alt="Логотип" />
   <h1 class="intro__title">
     {getTextByLang("header", lang)}
   </h1>

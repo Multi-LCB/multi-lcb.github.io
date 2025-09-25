@@ -1,5 +1,5 @@
 {
-  "name": "mera-page",
+  "name": "livelcb-page",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -19,7 +19,7 @@
     "svelte": "^5.28.1",
     "svelte-check": "^4.1.6",
     "typescript": "~5.8.3",
-    "vite": "^6.3.5",
+    "vite": "^6.3.6",
     "vite-plugin-singlefile": "^2.2.0"
   },
   "dependencies": {
