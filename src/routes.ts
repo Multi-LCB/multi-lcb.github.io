@@ -4,11 +4,11 @@ import NotFound from "./pages/NotFound.svelte";
 
  export default [
   {
-    path: '/live-lcb',
+    path: '/multi-lcb-page',
     component: Description
   },
   {
-    path: "/live-lcb/leaderboard",
+    path: "/multi-lcb-page/leaderboard",
     component: LeaderBoard
   },
   {

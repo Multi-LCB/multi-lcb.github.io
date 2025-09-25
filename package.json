@@ -1,9 +1,9 @@
 {
-  "name": "livelcb-page",
+  "name": "multi-lcb-page",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://Multi-LCB.github.io/multilcb.github.io",
+  "homepage": "https://multi-lcb.github.io/multi-lcb-page",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build && cp dist/index.html dist/404.html",

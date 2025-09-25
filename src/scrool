@@ -46,7 +46,7 @@
 </script>
 
 <header class="header">
-  <a href="/live-lcb"
+  <a href="/multi-lcb-page"
     ><img class="header-logo" src={headerLogo} alt="логотип" /></a
   >
   <div class="toggle-wrapper">
@@ -59,7 +59,7 @@
     <NavigateButton
       buttonText={getTextByLang("leaderboard", lang)}
       imgSrc={LeaderBoardIcon}
-      link="/live-lcb/leaderboard"
+      link="/multi-lcb-page/leaderboard"
     />
     <ToggleSwitch
       bind:value={$language}
