@@ -26,6 +26,7 @@
   interface DataRow {
     model: string;
     date: string;
+    "pass@1[avg]": number;
     "pass@1[python]": number;
     "pass@1[javascript]": number;
     "pass@1[typescript]": number;
@@ -35,12 +36,13 @@
     "pass@1[go]": number;
     "pass@1[rust]": number;
     "pass@1[ruby]": number;
-    task_id?: string;
+    task_id: string;
   }
 
   interface SummaryRow {
     modelIdx: number;
     model: string;
+    "pass@1[avg]": number;
     "pass@1[python]": number;
     "pass@1[javascript]": number;
     "pass@1[typescript]": number;
@@ -99,16 +101,27 @@
 
     // choose a display language key; adjust this mapping as needed
     // e.g., derive from `lang` if it represents a language slug
-    const languageKey = "pass@1[python]";
+    const languageKey = "pass@1[avg]";
 
     const summary = Object.entries(grouped).map(([model, rows]) => {
       const pass1Lang = rows.map((r) => r[languageKey] ?? 0);
       const pass6 = rows.map((r: any) => r["pass@6"] ?? 0);
       const tasksLength = rows.length;
 
+      
       return {
         modelIdx: 0,
         model,
+        "pass@1[avg]": (mean(rows.map(r => r["pass@1[python]"] ?? 0)) * 100 + 
+                        mean(rows.map(r => r["pass@1[javascript]"] ?? 0)) * 100 +
+                        mean(rows.map(r => r["pass@1[typescript]"] ?? 0)) * 100 + 
+                        mean(rows.map(r => r["pass@1[java]"] ?? 0)) * 100 + 
+                        mean(rows.map(r => r["pass@1[c++]"] ?? 0)) * 100 + 
+                        mean(rows.map(r => r["pass@1[c#]"] ?? 0)) * 100 + 
+                        mean(rows.map(r => r["pass@1[go]"] ?? 0)) * 100 + 
+                        mean(rows.map(r => r["pass@1[rust]"] ?? 0)) * 100 + 
+                        mean(rows.map(r => r["pass@1[ruby]"] ?? 0)) * 100
+                       ) / 9,
         "pass@1[python]": mean(rows.map(r => r["pass@1[python]"] ?? 0)) * 100,
         "pass@1[javascript]": mean(rows.map(r => r["pass@1[javascript]"] ?? 0)) * 100,
         "pass@1[typescript]": mean(rows.map(r => r["pass@1[typescript]"] ?? 0)) * 100,
@@ -118,8 +131,6 @@
         "pass@1[go]": mean(rows.map(r => r["pass@1[go]"] ?? 0)) * 100,
         "pass@1[rust]": mean(rows.map(r => r["pass@1[rust]"] ?? 0)) * 100,
         "pass@1[ruby]": mean(rows.map(r => r["pass@1[ruby]"] ?? 0)) * 100,
-       // pass1_std: (std(pass1Lang) / Math.sqrt(tasksLength)) * 100,
-        "pass@6": mean(pass6) * 100,
         n_task: tasksLength,
       };
     });
@@ -255,125 +266,136 @@
   </div>
 
   {#if filteredByDate.length}
-    <table>
+    <table style="width: 955px; overflow-x: auto; display: block;">
       <thead class="table__header">
-        <tr>
-          <th class="table__header-position">{getTextByLang("position", lang)}</th>
-          <th>{getTextByLang("model", lang)}</th>
+<tr>
+  <th class="table__header-position">{getTextByLang("position", lang)}</th>
+  <th>{getTextByLang("model", lang)}</th>
 
-          <!-- Sort by a specific language column; example shows python -->
-          <th class="table__row-sort" on:click={() => sortBy("pass@1[python]")}>
-            <div class="cell-wrapper">
-              pass@1[python]
-              {#if currentSortKey === "pass@1[python]"}
-                {#if sortDirection === "asc"}↑{/if}
-                {#if sortDirection === "desc"}↓{/if}
-              {:else}
-                ↕
-              {/if}
-            </div>
-          </th>
-          <th class="table__row-sort" on:click={() => sortBy("pass@1[javascript]")}>
-            <div class="cell-wrapper">
-              pass@1[javascript]
-              {#if currentSortKey === "pass@1[javascript]"}
-                {#if sortDirection === "asc"}↑{/if}
-                {#if sortDirection === "desc"}↓{/if}
-              {:else}
-                ↕
-              {/if}
-            </div>
-</th>
-<th class="table__row-sort" on:click={() => sortBy("pass@1[typescript]")}>
-        <div class="cell-wrapper">
-          pass@1[typescript]
-          {#if currentSortKey === "pass@1[typescript]"}
-            {#if sortDirection === "asc"}↑{/if}
-            {#if sortDirection === "desc"}↓{/if}
-          {:else}
-            ↕
-          {/if}
-        </div>
-</th>
-<th class="table__row-sort" on:click={() => sortBy("pass@1[java]")}>
-        <div class="cell-wrapper">
-          pass@1[java]
-          {#if currentSortKey === "pass@1[java]"}
-            {#if sortDirection === "asc"}↑{/if}
-            {#if sortDirection === "desc"}↓{/if}
-          {:else}
-            ↕
-          {/if}
-        </div>
-</th>
-<th class="table__row-sort" on:click={() => sortBy("pass@1[c++]")}>
-        <div class="cell-wrapper">
-          pass@1[c++]
-          {#if currentSortKey === "pass@1[c++]"}
-            {#if sortDirection === "asc"}↑{/if}
-            {#if sortDirection === "desc"}↓{/if}
-          {:else}
-            ↕
-          {/if}
-        </div>
-</th>
-<th class="table__row-sort" on:click={() => sortBy("pass@1[c#]")}>
-        <div class="cell-wrapper">
-          pass@1[c#]
-          {#if currentSortKey === "pass@1[c#]"}
-            {#if sortDirection === "asc"}↑{/if}
-            {#if sortDirection === "desc"}↓{/if}
-          {:else}
-            ↕
-          {/if}
-        </div>
-</th>
-                <th class="table__row-sort" on:click={() => sortBy("pass@1[go]")}>
-        <div class="cell-wrapper">
-          pass@1[go]
-          {#if currentSortKey === "pass@1[go]"}
-            {#if sortDirection === "asc"}↑{/if}
-            {#if sortDirection === "desc"}↓{/if}
-          {:else}
-            ↕
-          {/if}
-        </div>
-</th>
-<th class="table__row-sort" on:click={() => sortBy("pass@1[rust]")}>
-        <div class="cell-wrapper">
-          pass@1[rust]
-          {#if currentSortKey === "pass@1[rust]"}
-            {#if sortDirection === "asc"}↑{/if}
-            {#if sortDirection === "desc"}↓{/if}
-          {:else}
-            ↕
-          {/if}
-        </div>
-</th>
-<th class="table__row-sort" on:click={() => sortBy("pass@1[ruby]")}>
-        <div class="cell-wrapper">
-          pass@1[ruby]
-          {#if currentSortKey === "pass@1[ruby]"}
-            {#if sortDirection === "asc"}↑{/if}
-            {#if sortDirection === "desc"}↓{/if}
-          {:else}
-            ↕
-          {/if}
-        </div>
-</th>     
-          <th class="table__row-sort" on:click={() => sortBy("n_task")}>
-            <div class="cell-wrapper">
-              {getTextByLang("tasks", lang)}
-              {#if currentSortKey === "n_task"}
-                {#if sortDirection === "asc"}↑{/if}
-                {#if sortDirection === "desc"}↓{/if}
-              {:else}
-                ↕
-              {/if}
-            </div>
-          </th>
-        </tr>
-      </thead>
+  <!-- Sort by a specific language column; example shows python -->
+  <th class="table__row-sort" on:click={() => sortBy("pass@1[avg]")}>
+    <div class="cell-wrapper">
+      pass@1[avg]
+      {#if currentSortKey === "pass@1[avg]"}
+        {#if sortDirection === "asc"}↑{/if}
+        {#if sortDirection === "desc"}↓{/if}
+      {:else}
+        ↕
+      {/if}
+    </div>
+  </th>
+  <th class="table__row-sort" on:click={() => sortBy("pass@1[python]")}>
+    <div class="cell-wrapper">
+      pass@1[python]
+      {#if currentSortKey === "pass@1[python]"}
+        {#if sortDirection === "asc"}↑{/if}
+        {#if sortDirection === "desc"}↓{/if}
+      {:else}
+        ↕
+      {/if}
+    </div>
+  </th>
+  <th class="table__row-sort" on:click={() => sortBy("pass@1[javascript]")}>
+    <div class="cell-wrapper">
+      pass@1[javascript]
+      {#if currentSortKey === "pass@1[javascript]"}
+        {#if sortDirection === "asc"}↑{/if}
+        {#if sortDirection === "desc"}↓{/if}
+      {:else}
+        ↕
+      {/if}
+    </div>
+  </th>
+  <th class="table__row-sort" on:click={() => sortBy("pass@1[typescript]")}>
+  <div class="cell-wrapper">
+    pass@1[typescript]
+    {#if currentSortKey === "pass@1[typescript]"}
+      {#if sortDirection === "asc"}↑{/if}
+      {#if sortDirection === "desc"}↓{/if}
+    {:else}
+      ↕
+    {/if}
+  </div>
+  </th>
+  <th class="table__row-sort" on:click={() => sortBy("pass@1[java]")}>
+    <div class="cell-wrapper">
+      pass@1[java]
+      {#if currentSortKey === "pass@1[java]"}
+        {#if sortDirection === "asc"}↑{/if}
+        {#if sortDirection === "desc"}↓{/if}
+      {:else}
+        ↕
+      {/if}
+    </div>
+  </th>
+  <th class="table__row-sort" on:click={() => sortBy("pass@1[c++]")}>
+    <div class="cell-wrapper">
+      pass@1[c++]
+      {#if currentSortKey === "pass@1[c++]"}
+        {#if sortDirection === "asc"}↑{/if}
+        {#if sortDirection === "desc"}↓{/if}
+      {:else}
+        ↕
+      {/if}
+    </div>
+  </th>
+  <th class="table__row-sort" on:click={() => sortBy("pass@1[c#]")}>
+    <div class="cell-wrapper">
+      pass@1[c#]
+      {#if currentSortKey === "pass@1[c#]"}
+        {#if sortDirection === "asc"}↑{/if}
+        {#if sortDirection === "desc"}↓{/if}
+      {:else}
+        ↕
+      {/if}
+    </div>
+  </th>
+  <th class="table__row-sort" on:click={() => sortBy("pass@1[go]")}>
+    <div class="cell-wrapper">
+      pass@1[go]
+      {#if currentSortKey === "pass@1[go]"}
+        {#if sortDirection === "asc"}↑{/if}
+        {#if sortDirection === "desc"}↓{/if}
+      {:else}
+        ↕
+      {/if}
+    </div>
+  </th>
+  <th class="table__row-sort" on:click={() => sortBy("pass@1[rust]")}>
+    <div class="cell-wrapper">
+      pass@1[rust]
+      {#if currentSortKey === "pass@1[rust]"}
+        {#if sortDirection === "asc"}↑{/if}
+        {#if sortDirection === "desc"}↓{/if}
+      {:else}
+        ↕
+      {/if}
+    </div>
+  </th>
+  <th class="table__row-sort" on:click={() => sortBy("pass@1[ruby]")}>
+    <div class="cell-wrapper">
+      pass@1[ruby]
+      {#if currentSortKey === "pass@1[ruby]"}
+        {#if sortDirection === "asc"}↑{/if}
+        {#if sortDirection === "desc"}↓{/if}
+      {:else}
+        ↕
+      {/if}
+    </div>
+  </th>     
+  <th class="table__row-sort" on:click={() => sortBy("n_task")}>
+  <div class="cell-wrapper">
+    {getTextByLang("tasks", lang)}
+    {#if currentSortKey === "n_task"}
+      {#if sortDirection === "asc"}↑{/if}
+      {#if sortDirection === "desc"}↓{/if}
+    {:else}
+      ↕
+    {/if}
+  </div>
+  </th>
+</tr>
+</thead>
 
       <tbody>
         {#each filteredByDate as row}
@@ -384,6 +406,7 @@
             <td class="table__row-cell">{row.model}</td>
 
             <!-- Display chosen language column; example shows python -->
+            <td>{row["pass@1[avg]"].toFixed(2)}%</td>
             <td>{row["pass@1[python]"].toFixed(2)}%</td>
             <td>{row["pass@1[javascript]"].toFixed(2)}%</td>
             <td>{row["pass@1[typescript]"].toFixed(2)}%</td>
@@ -392,7 +415,7 @@
             <td>{row["pass@1[c#]"].toFixed(2)}%</td>
             <td>{row["pass@1[go]"].toFixed(2)}%</td>
             <td>{row["pass@1[rust]"].toFixed(2)}%</td>
-            <td>{row["pass@6"].toFixed(2)}%</td>
+            <td>{row["pass@1[ruby]"].toFixed(2)}%</td>
             <td>{row.n_task}</td>
           </tr>
         {/each}

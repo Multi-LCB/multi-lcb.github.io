@@ -73,10 +73,9 @@
 
 <div class="intro-text">
   <img class="intro-logo" src={logoMera} alt="Логотип" />
-  <h1 class="intro__title">
+  <h3> <!-- class="intro__title"> -->
     {getTextByLang("header", lang)}
-  </h1>
-
+  </h3>
   <div class="intro-text__buttons-links">
     <LinksHeaderButton
       buttonText="Code"
