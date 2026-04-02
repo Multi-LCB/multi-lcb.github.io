@@ -873,7 +873,7 @@
   <header class="header">
     <div class="header-left">
       <a href="#/" class="header-logo-link">MULTI-LCB</a>
-      <a class="nav-btn header-desktop-links" href="https://github.com/Multi-LCB/Multi-LiveCodeBench" target="_blank">
+      <a class="nav-btn header-desktop-links" href="https://github.com/Multi-LCB/Multi-LCB" target="_blank">
         <img src="./assets/codeLogo.svg" alt="" /> Code
       </a>
       <a class="nav-btn header-desktop-links" href="https://huggingface.co/datasets/" target="_blank">
@@ -918,7 +918,7 @@
 
   <!-- MOBILE MENU - Navigation Links -->
   <div class="mobile-menu" id="mobileMenu">
-    <a class="nav-btn" href="https://github.com/Multi-LCB/Multi-LiveCodeBench" target="_blank" onclick="closeMobileMenu()">
+    <a class="nav-btn" href="https://github.com/Multi-LCB/Multi-LCB" target="_blank" onclick="closeMobileMenu()">
       <img src="./assets/codeLogo.svg" alt="" /> Code
     </a>
     <a class="nav-btn" href="https://huggingface.co/datasets/" target="_blank" onclick="closeMobileMenu()">
@@ -1282,7 +1282,7 @@ function parseUpdates(text) {
 
 function contentPath(file) {
   const folder = LANG_FOLDER[lang];
-  return folder ? `./content/${folder}/${file}` : `./content/${file}`;
+  return folder ? `content/${folder}/${file}` : `content/${file}`;
 }
 
 async function fetchText(path) {
