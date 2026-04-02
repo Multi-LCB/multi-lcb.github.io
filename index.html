@@ -464,9 +464,9 @@
       background: linear-gradient(90deg, #6366f1, #8b5cf6);
     }
 
-    /* ===== COLLAPSIBLE FILTERS FOR MOBILE ===== */
+    /* ===== COLLAPSIBLE FILTERS (DESKTOP & MOBILE) ===== */
     .filters-toggle {
-      display: none;
+      display: flex;
       padding: 10px 16px;
       background: rgba(99, 102, 241, 0.15);
       border: 1px solid rgba(99, 102, 241, 0.3);
@@ -491,8 +491,24 @@
       transform: rotate(180deg);
     }
     .filters-container {
+      max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s ease;
+      margin-bottom: 0;
+    }
+    .filters-container.active {
+      max-height: 500px;
+      margin-bottom: 32px;
+    }
+    /* Make filters horizontal on desktop */
+    .filters-horizontal {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    .filters-horizontal > .lang-filter {
+      margin-bottom: 0;
     }
 
     /* ===== LANGUAGE FILTER ===== */
@@ -979,40 +995,61 @@
           <span class="filters-toggle-icon">▼</span>
         </button>
 
-        <!-- Filters container (collapsible on mobile) -->
-        <div class="filters-container active" id="filtersContainer">
+        <!-- Filters container (collapsible) -->
+        <div class="filters-container" id="filtersContainer">
           <!-- Language filter -->
           <div class="lang-filter" id="langFilter">
             <span class="lang-filter-title" data-text="filterLangs">Filter languages:</span>
           </div>
 
-          <!-- Difficulty filter -->
-          <div class="lang-filter" id="diffFilter" style="margin-bottom: 16px;">
-            <span class="lang-filter-title" data-text="filterByDifficulty">Filter by difficulty:</span>
-            <div class="lang-chip">
-              <input type="checkbox" id="cb-diff-E" checked />
-              <label for="cb-diff-E" style="font-size: 13px; color: #34d399;" data-text="difficultyEasy">Easy</label>
+          <!-- Horizontal filters group -->
+          <div class="filters-horizontal">
+            <!-- Difficulty filter -->
+            <div class="lang-filter" id="diffFilter">
+              <span class="lang-filter-title" data-text="filterByDifficulty">Filter by difficulty:</span>
+              <div class="lang-chip">
+                <input type="checkbox" id="cb-diff-E" checked />
+                <label for="cb-diff-E" style="font-size: 13px; color: #34d399;" data-text="difficultyEasy">Easy</label>
+              </div>
+              <div class="lang-chip">
+                <input type="checkbox" id="cb-diff-M" checked />
+                <label for="cb-diff-M" style="font-size: 13px; color: #fb923c;" data-text="difficultyMedium">Medium</label>
+              </div>
+              <div class="lang-chip">
+                <input type="checkbox" id="cb-diff-H" checked />
+                <label for="cb-diff-H" style="font-size: 13px; color: #f87171;" data-text="difficultyHard">Hard</label>
+              </div>
             </div>
-            <div class="lang-chip">
-              <input type="checkbox" id="cb-diff-M" checked />
-              <label for="cb-diff-M" style="font-size: 13px; color: #fb923c;" data-text="difficultyMedium">Medium</label>
-            </div>
-            <div class="lang-chip">
-              <input type="checkbox" id="cb-diff-H" checked />
-              <label for="cb-diff-H" style="font-size: 13px; color: #f87171;" data-text="difficultyHard">Hard</label>
-            </div>
-          </div>
 
-          <!-- Platform filter -->
-          <div class="lang-filter" id="platformFilter" style="margin-bottom: 16px;">
-            <span class="lang-filter-title" data-text="filterByPlatform">Filter by platform:</span>
-          </div>
+            <!-- Platform filter -->
+            <div class="lang-filter" id="platformFilter">
+              <span class="lang-filter-title" data-text="filterByPlatform">Filter by platform:</span>
+            </div>
 
-          <!-- Show old models checkbox -->
-          <div class="lang-filter" style="margin-bottom: 16px;">
-            <div class="lang-chip">
-              <input type="checkbox" id="cb-show-old" />
-              <label for="cb-show-old" style="font-size: 13px; color: #94a3b8;" data-text="showOldModels">Show _old* models</label>
+            <!-- Reasoning filter -->
+            <div class="lang-filter">
+              <span class="lang-filter-title" data-text="filterByReasoning">Reasoning:</span>
+              <div class="lang-chip">
+                <input type="radio" name="reasoning" id="cb-reason-any" value="any" checked />
+                <label for="cb-reason-any" style="font-size: 13px; color: #94a3b8;" data-text="reasoningAny">Any</label>
+              </div>
+              <div class="lang-chip">
+                <input type="radio" name="reasoning" id="cb-reason-only" value="only" />
+                <label for="cb-reason-only" style="font-size: 13px; color: #a5b4fc;" data-text="reasoningOnly">Only CoT</label>
+              </div>
+              <div class="lang-chip">
+                <input type="radio" name="reasoning" id="cb-reason-no" value="no" />
+                <label for="cb-reason-no" style="font-size: 13px; color: #f472b6;" data-text="reasoningNo">No CoT</label>
+              </div>
+            </div>
+
+            <!-- Show old models checkbox -->
+            <div class="lang-filter">
+              <span class="lang-filter-title" style="visibility: hidden;">.</span>
+              <div class="lang-chip">
+                <input type="checkbox" id="cb-show-old" />
+                <label for="cb-show-old" style="font-size: 13px; color: #94a3b8;" data-text="showOldModels">Show _old* models</label>
+              </div>
             </div>
           </div>
         </div>
@@ -1057,49 +1094,52 @@
           <span class="filters-toggle-icon">▼</span>
         </button>
 
-        <!-- Filters container (collapsible on mobile) -->
-        <div class="filters-container active" id="compareFiltersContainer">
+        <!-- Filters container (collapsible) -->
+        <div class="filters-container" id="compareFiltersContainer">
           <!-- Language filter for compare -->
           <div class="lang-filter" id="compareLangFilter">
             <span class="lang-filter-title" data-text="filterLangs">Filter languages:</span>
           </div>
 
-          <!-- Difficulty filter for compare -->
-          <div class="lang-filter" id="compareDiffFilter" style="margin-bottom: 16px;">
-            <span class="lang-filter-title" data-text="filterByDifficulty">Filter by difficulty:</span>
-            <div class="lang-chip">
-              <input type="checkbox" id="compare-cb-diff-E" checked />
-              <label for="compare-cb-diff-E" style="font-size: 13px; color: #34d399;" data-text="difficultyEasy">Easy</label>
+          <!-- Horizontal filters group -->
+          <div class="filters-horizontal">
+            <!-- Difficulty filter for compare -->
+            <div class="lang-filter" id="compareDiffFilter">
+              <span class="lang-filter-title" data-text="filterByDifficulty">Filter by difficulty:</span>
+              <div class="lang-chip">
+                <input type="checkbox" id="compare-cb-diff-E" checked />
+                <label for="compare-cb-diff-E" style="font-size: 13px; color: #34d399;" data-text="difficultyEasy">Easy</label>
+              </div>
+              <div class="lang-chip">
+                <input type="checkbox" id="compare-cb-diff-M" checked />
+                <label for="compare-cb-diff-M" style="font-size: 13px; color: #fb923c;" data-text="difficultyMedium">Medium</label>
+              </div>
+              <div class="lang-chip">
+                <input type="checkbox" id="compare-cb-diff-H" checked />
+                <label for="compare-cb-diff-H" style="font-size: 13px; color: #f87171;" data-text="difficultyHard">Hard</label>
+              </div>
             </div>
-            <div class="lang-chip">
-              <input type="checkbox" id="compare-cb-diff-M" checked />
-              <label for="compare-cb-diff-M" style="font-size: 13px; color: #fb923c;" data-text="difficultyMedium">Medium</label>
-            </div>
-            <div class="lang-chip">
-              <input type="checkbox" id="compare-cb-diff-H" checked />
-              <label for="compare-cb-diff-H" style="font-size: 13px; color: #f87171;" data-text="difficultyHard">Hard</label>
-            </div>
-          </div>
 
-          <!-- Platform filter for compare -->
-          <div class="lang-filter" id="comparePlatformFilter" style="margin-bottom: 16px;">
-            <span class="lang-filter-title" data-text="filterByPlatform">Filter by platform:</span>
-          </div>
+            <!-- Platform filter for compare -->
+            <div class="lang-filter" id="comparePlatformFilter">
+              <span class="lang-filter-title" data-text="filterByPlatform">Filter by platform:</span>
+            </div>
 
-          <!-- Reasoning filter for compare -->
-          <div class="lang-filter" style="margin-bottom: 16px;">
-            <span class="lang-filter-title" data-text="filterByReasoning">Reasoning:</span>
-            <div class="lang-chip">
-              <input type="radio" name="compare-reasoning" id="compare-cb-reason-any" value="any" checked />
-              <label for="compare-cb-reason-any" style="font-size: 13px; color: #94a3b8;" data-text="reasoningAny">Any</label>
-            </div>
-            <div class="lang-chip">
-              <input type="radio" name="compare-reasoning" id="compare-cb-reason-only" value="only" />
-              <label for="compare-cb-reason-only" style="font-size: 13px; color: #a5b4fc;" data-text="reasoningOnly">Only CoT</label>
-            </div>
-            <div class="lang-chip">
-              <input type="radio" name="compare-reasoning" id="compare-cb-reason-no" value="no" />
-              <label for="compare-cb-reason-no" style="font-size: 13px; color: #f472b6;" data-text="reasoningNo">No CoT</label>
+            <!-- Reasoning filter for compare -->
+            <div class="lang-filter">
+              <span class="lang-filter-title" data-text="filterByReasoning">Reasoning:</span>
+              <div class="lang-chip">
+                <input type="radio" name="compare-reasoning" id="compare-cb-reason-any" value="any" checked />
+                <label for="compare-cb-reason-any" style="font-size: 13px; color: #94a3b8;" data-text="reasoningAny">Any</label>
+              </div>
+              <div class="lang-chip">
+                <input type="radio" name="compare-reasoning" id="compare-cb-reason-only" value="only" />
+                <label for="compare-cb-reason-only" style="font-size: 13px; color: #a5b4fc;" data-text="reasoningOnly">Only CoT</label>
+              </div>
+              <div class="lang-chip">
+                <input type="radio" name="compare-reasoning" id="compare-cb-reason-no" value="no" />
+                <label for="compare-cb-reason-no" style="font-size: 13px; color: #f472b6;" data-text="reasoningNo">No CoT</label>
+              </div>
             </div>
           </div>
         </div>
