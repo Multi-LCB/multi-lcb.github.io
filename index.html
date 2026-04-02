@@ -5,7 +5,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MultiLCB — Multi Live Code Bench</title>
-  <base href="/">
   <link rel="icon" href="./assets/logo.svg" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1248,12 +1247,23 @@ function parseFrontMatter(text) {
 }
 
 function parseMainBody(body) {
-  const lines = body.split('\n').filter(l => l.trim());
+  const lines = body.split('\n');
   let title = '', content = '';
-  lines.forEach(line => {
-    if (line.startsWith('# ')) title = line.slice(2).trim();
-    else content += (content ? ' ' : '') + line.trim();
-  });
+  let inContent = false;
+  
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('# ')) {
+      title = trimmed.slice(2).trim();
+      inContent = false;
+    } else if (trimmed) {
+      // Non-empty line that's not a title
+      if (content) content += ' ';
+      content += trimmed;
+      inContent = true;
+    }
+  }
+  
   content = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
   return { title, content };
 }
@@ -1290,10 +1300,10 @@ async function loadContent() {
     ]);
 
     // Fallback to English if a file wasn't found
-    const mainText = mainRes ?? await fetchText('./content/main.md');
-    const lbText   = lbRes   ?? await fetchText('./content/leaderboard.md');
-    const cmpText  = cmpRes  ?? await fetchText('./content/compare.md');
-    const updText  = updRes  ?? await fetchText('./content/updates.md');
+    const mainText = mainRes ?? await fetchText('content/main.md');
+    const lbText   = lbRes   ?? await fetchText('content/leaderboard.md');
+    const cmpText  = cmpRes  ?? await fetchText('content/compare.md');
+    const updText  = updRes  ?? await fetchText('content/updates.md');
 
     const main = parseFrontMatter(mainText || '');
     const lb   = parseFrontMatter(lbText || '');
@@ -2001,7 +2011,18 @@ function renderTable() {
       const td = document.createElement("td");
       const val = row[`pass@1[${l}]`];
       td.textContent = val > 0 ? val.toFixed(1) : '—';
-      if (val === 0) td.style.color = '#64748b';
+      if (val === 0) {
+        td.style.color = '#64748b';
+      } else {
+        // Gradient color from low to high values (0-100) - very subtle, low values invisible
+        const ratio = val / 100;
+        // Low values (< 20%) are almost invisible, only high values get noticeable highlighting
+        const opacity = ratio < 0.2 ? 0.01 : 0.015 + ratio * 0.06; // 0.015 to 0.075
+        const hue = 220 + ratio * 80; // 220 (blue) to 300 (light blue/purple)
+        td.style.background = `hsla(${hue}, 80%, 60%, ${opacity})`;
+        const textLightness = 65 + ratio * 15; // 65% to 80%
+        td.style.color = `hsl(${hue}, 80%, ${textLightness}%)`;
+      }
       tr.appendChild(td);
     });
     // tasks (n)
