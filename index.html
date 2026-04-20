@@ -300,7 +300,7 @@
     }
 
     /* ===== DESCRIPTION ===== */
-    .description { max-width: 960px; text-align: center; }
+    .description { max-width: 960px; text-align: left; }
     .description h2 {
       font-size: clamp(1.25rem, 2vw, 2.2rem);
       font-weight: 700; margin-bottom: 24px; color: #fff;
@@ -308,6 +308,21 @@
     .description p {
       font-size: clamp(0.9rem, 1.2vw, 1.15rem);
       line-height: 1.7; color: #cbd5e1; padding: 0 20px;
+    }
+    .description p b {
+      color: #f8fafc;
+      font-weight: 700;
+    }
+    .description .inline-logo {
+      height: 20px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+    .description .inline-accept {
+      white-space: nowrap;
+    }
+    .description .poster-img + p {
+      margin-top: 28px;
     }
     .poster-img {
       width: 100%; max-width: 960px;
@@ -962,9 +977,9 @@
   <main class="main">
     <!-- DESCRIPTION PAGE (Main) -->
     <div id="page-description" class="description">
-      <h2 data-text="headerBlockFirst">Description</h2>
       <p data-text="textBlockFirst"></p>
       <img class="poster-img" id="posterImg" src="./poster.png" alt="MultiLCB Poster" onclick="cyclePosterZoom(this)" />
+      <p data-text="textBlockSecond"></p>
     </div>
 
     <!-- LEADERBOARD PAGE -->
@@ -1282,24 +1297,39 @@ function parseFrontMatter(text) {
 
 function parseMainBody(body) {
   const lines = body.split('\n');
-  let title = '', content = '';
-  let inContent = false;
+  let title = '', current = [];
+  const blocks = [];
   
   for (const line of lines) {
     const trimmed = line.trim();
     if (trimmed.startsWith('# ')) {
       title = trimmed.slice(2).trim();
-      inContent = false;
-    } else if (trimmed) {
-      // Non-empty line that's not a title
-      if (content) content += ' ';
-      content += trimmed;
-      inContent = true;
+      continue;
     }
+    if (trimmed === '---') {
+      blocks.push(current.slice());
+      current = [];
+      continue;
+    }
+    current.push(line.replace(/\s+$/, ''));
   }
+  if (current.length) blocks.push(current.slice());
   
-  content = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-  return { title, content };
+  const format = (value) => value
+    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+    .replace(/\n{2,}/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+
+  const joinBlock = (block) => {
+    const trimmedLines = block.map(line => line.trimEnd());
+    return format(trimmedLines.join('\n').trim());
+  };
+
+  return {
+    title,
+    first: joinBlock(blocks[0] || []),
+    second: joinBlock(blocks[1] || []),
+  };
 }
 
 function parseUpdates(text) {
@@ -1353,7 +1383,8 @@ async function loadContent() {
       news:               main.meta.navNews          || 'News',
       newsTitle:          main.meta.newsTitle         || 'Updates',
       headerBlockFirst:   mainBody.title              || 'Description',
-      textBlockFirst:     mainBody.content            || '',
+      textBlockFirst:     mainBody.first              || '',
+      textBlockSecond:    mainBody.second             || '',
       dateRange:          lb.meta.dateRange           || 'Date range',
       filterLangs:        lb.meta.filterLangs         || 'Filter languages:',
       notExistedData:     lb.meta.notExistedData      || 'No data for this period',
