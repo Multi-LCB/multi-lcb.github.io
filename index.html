@@ -597,7 +597,7 @@
       font-family: 'Inter', sans-serif;
       font-weight: 600; color: #f1f5f9; white-space: nowrap;
       position: relative;
-      cursor: help;
+      cursor: default;
     }
     
     /* Tooltip for meta.json hyperparameters */
@@ -1042,12 +1042,16 @@
               </div>
             </div>
 
-            <!-- Show old models checkbox -->
+            <!-- Show old/del models checkbox -->
             <div class="lang-filter">
               <span class="lang-filter-title" style="visibility: hidden;">.</span>
               <div class="lang-chip">
                 <input type="checkbox" id="cb-show-old" />
                 <label for="cb-show-old" style="font-size: 13px; color: #94a3b8;" data-text="showOldModels">Show _old* models</label>
+              </div>
+              <div class="lang-chip">
+                <input type="checkbox" id="cb-show-del" />
+                <label for="cb-show-del" style="font-size: 13px; color: #f59e0b;" data-text="showDelModels">Show _del* models</label>
               </div>
             </div>
           </div>
@@ -1423,6 +1427,7 @@ let activeLangs = new Set(LANGUAGES);
 let activeDifficulties = new Set(['E', 'M', 'H']); // Difficulty filter
 let activePlatforms = new Set(); // Platform filter
 let showOldModels = false; // Show/hide _old* models
+let showDelModels = false; // Show/hide _del* models
 let reasoningFilter = 'any'; // 'any', 'only', 'no' for _cot models
 let currentSortKey = null, sortDirection = null;
 let originalData = [];
@@ -1537,12 +1542,12 @@ function parseJsonl(text) {
 
 async function loadAllData() {
   // 1. Load the index manifest
-  const indexRes = await fetch('./data/index.json');
+  const indexRes = await fetch('./data/lcb/index.json');
   const index = await indexRes.json();
 
   // 2. Load meta.json for each model
   const metaPromises = index.models.map(modelEntry => {
-    const url = `./data/${encodeURIComponent(modelEntry.name)}/meta.json`;
+    const url = `./data/lcb/${encodeURIComponent(modelEntry.name)}/meta.json`;
     return fetch(url)
       .then(r => r.ok ? r.json() : null)
       .then(meta => ({ model: modelEntry.name, meta }))
@@ -1559,7 +1564,7 @@ async function loadAllData() {
 
   for (const modelEntry of index.models) {
     for (const [jsonlLang, filename] of Object.entries(modelEntry.files)) {
-      const url = `./data/${encodeURIComponent(modelEntry.name)}/${filename}`;
+      const url = `./data/lcb/${encodeURIComponent(modelEntry.name)}/${filename}`;
       fetchPromises.push(fetch(url).then(r => r.ok ? r.text() : ''));
       fetchMeta.push({ model: modelEntry.name, jsonlLang });
     }
@@ -1628,6 +1633,7 @@ async function loadAllData() {
   setupLangFilter();
   setupDifficultyFilter();
   setupShowOldFilter();
+  setupShowDelFilter();
   setupReasoningFilter();
   setupPlatformFilter();
   
@@ -1669,6 +1675,20 @@ function setupShowOldFilter() {
   if (!cb) return;
   cb.addEventListener("change", () => {
     showOldModels = cb.checked;
+    currentSortKey = null; sortDirection = null;
+    renderTable();
+    updateSliderInfo();
+  });
+}
+
+// ============================================================
+// SHOW DEL MODELS FILTER SETUP
+// ============================================================
+function setupShowDelFilter() {
+  const cb = document.getElementById("cb-show-del");
+  if (!cb) return;
+  cb.addEventListener("change", () => {
+    showDelModels = cb.checked;
     currentSortKey = null; sortDirection = null;
     renderTable();
     updateSliderInfo();
@@ -1852,6 +1872,11 @@ function summarize(data) {
   // Filter out _old* models if showOldModels is false
   if (!showOldModels) {
     summary = summary.filter(r => !r.model.startsWith('_old'));
+  }
+
+  // Filter out _del* models if showDelModels is false
+  if (!showDelModels) {
+    summary = summary.filter(r => !r.model.startsWith('_del'));
   }
 
   // Filter by reasoning (CoT) if not 'any'
