@@ -988,6 +988,21 @@
           <div class="slider-ticks" id="sliderTicks"></div>
         </div>
 
+        <!-- Dataset selector buttons -->
+        <div class="lang-filter" style="margin-bottom: 24px; justify-content: center;">
+          <div class="lang-toggle" style="border: 1px solid #6366f1;">
+            <a href="#/leaderboard" style="all: unset; cursor: pointer;">
+              <button id="btnDatasetLcb">LCB</button>
+            </a>
+            <a href="#/leaderboard_agentic" style="all: unset; cursor: pointer;">
+              <button id="btnDatasetAgentic">LCB-Agentic</button>
+            </a>
+            <a href="#/leaderboard_pro" style="all: unset; cursor: pointer;">
+              <button id="btnDatasetPro">LCB-Pro</button>
+            </a>
+          </div>
+        </div>
+
         <!-- Filters toggle button for mobile -->
         <button class="filters-toggle" id="filtersToggle" onclick="toggleFilters()">
           <span>🔍 Filters</span>
@@ -1089,6 +1104,21 @@
             <input type="range" id="compareSliderEnd" min="0" max="100" value="100" />
           </div>
           <div class="slider-ticks" id="compareSliderTicks"></div>
+        </div>
+
+        <!-- Dataset selector buttons -->
+        <div class="lang-filter" style="margin-bottom: 24px; justify-content: center;">
+          <div class="lang-toggle" style="border: 1px solid #6366f1;">
+            <a href="#/compare" style="all: unset; cursor: pointer;">
+              <button id="btnCompareDatasetLcb">LCB</button>
+            </a>
+            <a href="#/compare_agentic" style="all: unset; cursor: pointer;">
+              <button id="btnCompareDatasetAgentic">LCB-Agentic</button>
+            </a>
+            <a href="#/compare_pro" style="all: unset; cursor: pointer;">
+              <button id="btnCompareDatasetPro">LCB-Pro</button>
+            </a>
+          </div>
         </div>
 
         <!-- Filters toggle button for mobile (compare page) -->
@@ -1421,6 +1451,7 @@ const JSONL_LANG_TO_COL = {
 // STATE
 // ============================================================
 let lang = "eng";
+let currentDataset = 'lcb'; // 'lcb', 'lcb_agentic', 'lcb_pro'
 let allData = [];
 let startDate = 0, endDate = 0, dateMin = 0, dateMax = 0;
 let activeLangs = new Set(LANGUAGES);
@@ -1470,7 +1501,39 @@ function route() {
   // Reset active nav
   document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active-nav"));
 
-  if (hash === "#/leaderboard") {
+  // Determine dataset from hash
+  let newDataset = 'lcb';
+  if (hash.startsWith("#/leaderboard_agentic") || hash.startsWith("#/compare_agentic")) {
+    newDataset = 'lcb_agentic';
+  } else if (hash.startsWith("#/leaderboard_pro") || hash.startsWith("#/compare_pro")) {
+    newDataset = 'lcb_pro';
+  }
+
+  // Reload data if dataset changed
+  if (newDataset !== currentDataset) {
+    currentDataset = newDataset;
+    allData = [];
+    modelMeta = {};
+    taskDifficulties = {};
+    taskPlatforms = {};
+    allPlatforms = new Set();
+    activePlatforms = new Set();
+    compareInitialized = false;
+    compareSliderSetup = false;
+    loadAllData().catch(err => console.error("Failed to load data:", err));
+  }
+
+  // Update dataset button states
+  document.querySelectorAll('[id^="btnDataset"], [id^="btnCompareDataset"]').forEach(btn => btn.classList.remove('active'));
+  if (hash.startsWith("#/leaderboard")) {
+    const btnMap = { lcb: 'btnDatasetLcb', lcb_agentic: 'btnDatasetAgentic', lcb_pro: 'btnDatasetPro' };
+    document.getElementById(btnMap[currentDataset])?.classList.add('active');
+  } else if (hash.startsWith("#/compare")) {
+    const btnMap = { lcb: 'btnCompareDatasetLcb', lcb_agentic: 'btnCompareDatasetAgentic', lcb_pro: 'btnCompareDatasetPro' };
+    document.getElementById(btnMap[currentDataset])?.classList.add('active');
+  }
+
+  if (hash.startsWith("#/leaderboard")) {
     document.getElementById("page-leaderboard").classList.remove("hidden");
     introSection.classList.add("hidden");
     document.getElementById("navLeaderboard").classList.add("active-nav");
@@ -1479,7 +1542,7 @@ function route() {
       updateSliderInfo();
       renderTable();
     }
-  } else if (hash === "#/compare") {
+  } else if (hash.startsWith("#/compare")) {
     document.getElementById("page-compare").classList.remove("hidden");
     introSection.classList.add("hidden");
     document.getElementById("navCompare").classList.add("active-nav");
@@ -1541,13 +1604,16 @@ function parseJsonl(text) {
 }
 
 async function loadAllData() {
+  // Determine data path based on currentDataset
+  const dataPath = `./data/${currentDataset}`;
+  
   // 1. Load the index manifest
-  const indexRes = await fetch('./data/lcb/index.json');
+  const indexRes = await fetch(`${dataPath}/index.json`);
   const index = await indexRes.json();
 
   // 2. Load meta.json for each model
   const metaPromises = index.models.map(modelEntry => {
-    const url = `./data/lcb/${encodeURIComponent(modelEntry.name)}/meta.json`;
+    const url = `${dataPath}/${encodeURIComponent(modelEntry.name)}/meta.json`;
     return fetch(url)
       .then(r => r.ok ? r.json() : null)
       .then(meta => ({ model: modelEntry.name, meta }))
@@ -1564,7 +1630,7 @@ async function loadAllData() {
 
   for (const modelEntry of index.models) {
     for (const [jsonlLang, filename] of Object.entries(modelEntry.files)) {
-      const url = `./data/lcb/${encodeURIComponent(modelEntry.name)}/${filename}`;
+      const url = `${dataPath}/${encodeURIComponent(modelEntry.name)}/${filename}`;
       fetchPromises.push(fetch(url).then(r => r.ok ? r.text() : ''));
       fetchMeta.push({ model: modelEntry.name, jsonlLang });
     }
@@ -1599,9 +1665,11 @@ async function loadAllData() {
         }
       }
       modelData[model][key][colName] = rec.pass;
-      // Store difficulty and platform if available
+      // Store difficulty and platform if available (normalize to E/M/H)
       if (rec.difficulty && !taskDifficulties[rec.task_id]) {
-        taskDifficulties[rec.task_id] = rec.difficulty;
+        const diff = String(rec.difficulty).toLowerCase();
+        const diffMap = { easy: 'E', medium: 'M', hard: 'H', e: 'E', m: 'M', h: 'H' };
+        taskDifficulties[rec.task_id] = diffMap[diff] || rec.difficulty;
       }
       if (rec.platform && !taskPlatforms[rec.task_id]) {
         taskPlatforms[rec.task_id] = rec.platform;
@@ -1783,6 +1851,10 @@ function fmtDate(ts) {
 // ============================================================
 function setupLangFilter() {
   const container = document.getElementById("langFilter");
+  
+  // Clear existing chips (except title)
+  const chips = container.querySelectorAll('.lang-chip');
+  chips.forEach(chip => chip.remove());
 
   ALL_FILTER_LANGUAGES.forEach(l => {
     const isInData = LANGUAGES.includes(l);
@@ -2180,6 +2252,10 @@ function setupCompareReasoningFilter() {
 function setupCompareLangFilter() {
   const container = document.getElementById("compareLangFilter");
   if (!container) return;
+
+  // Clear existing chips (except title)
+  const chips = container.querySelectorAll('.lang-chip');
+  chips.forEach(chip => chip.remove());
 
   ALL_FILTER_LANGUAGES.forEach(l => {
     const isInData = LANGUAGES.includes(l);
