@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MultiLCB — Multi Live Code Bench</title>
   <link rel="icon" href="./assets/logo.svg" />
+  <!-- iOS / pinned tab -->
+  <link rel="apple-touch-icon" href="./assets/new_logo.png" />
+  <meta name="theme-color" content="#0f172a" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -910,7 +913,7 @@
     </div>
     <nav class="header-nav header-desktop-nav" id="headerNav">
       <a class="nav-btn" href="#/" id="navMain">
-        🏠 <span data-text="home">Main</span>
+        📄 <span data-text="home">Main</span>
       </a>
       <a class="nav-btn" href="#/leaderboard" id="navLeaderboard">
         <img src="./assets/leaderBoarIcon.svg" alt="" />
@@ -943,7 +946,7 @@
       <img src="./assets/cupLogo.svg" alt="" /> Submit
     </a>
     <a class="nav-btn" href="#/" id="navMainMobile" onclick="closeMobileMenu()">
-      🏠 <span data-text="home">Main</span>
+      📄 <span data-text="home">Main</span>
     </a>
     <a class="nav-btn" href="#/leaderboard" id="navLeaderboardMobile" onclick="closeMobileMenu()">
       <img src="./assets/leaderBoarIcon.svg" alt="" />
@@ -1009,11 +1012,11 @@
             <a href="#/leaderboard" style="all: unset; cursor: pointer;">
               <button id="btnDatasetLcb">LCB</button>
             </a>
-            <a href="#/leaderboard_agentic" style="all: unset; cursor: pointer;">
-              <button id="btnDatasetAgentic">LCB-Agentic</button>
-            </a>
             <a href="#/leaderboard_pro" style="all: unset; cursor: pointer;">
-              <button id="btnDatasetPro">LCB-Pro</button>
+              <button id="btnDatasetPro">LCB-PRO</button>
+            </a>
+            <a href="#/leaderboard_agentic" style="all: unset; cursor: pointer;">
+              <button id="btnDatasetAgentic">LCB-PRO-AGENTIC</button>
             </a>
           </div>
         </div>
@@ -1128,10 +1131,10 @@
               <button id="btnCompareDatasetLcb">LCB</button>
             </a>
             <a href="#/compare_agentic" style="all: unset; cursor: pointer;">
-              <button id="btnCompareDatasetAgentic">LCB-Agentic</button>
+              <button id="btnCompareDatasetAgentic">LCB-PRO-AGENTIC</button>
             </a>
             <a href="#/compare_pro" style="all: unset; cursor: pointer;">
-              <button id="btnCompareDatasetPro">LCB-Pro</button>
+              <button id="btnCompareDatasetPro">LCB-PRO</button>
             </a>
           </div>
         </div>
@@ -1381,7 +1384,6 @@ async function loadContent() {
       leaderboard:        main.meta.navLeaderboard   || 'Leaderboard',
       compare:            main.meta.navCompare       || 'Compare',
       news:               main.meta.navNews          || 'News',
-      newsTitle:          main.meta.newsTitle         || 'Updates',
       headerBlockFirst:   mainBody.title              || 'Description',
       textBlockFirst:     mainBody.first              || '',
       textBlockSecond:    mainBody.second             || '',
@@ -1481,6 +1483,10 @@ const JSONL_LANG_TO_COL = {
 // ============================================================
 // STATE
 // ============================================================
+// Default left bound for leaderboard date slider: 01/02/2025
+// (dd/mm/yyyy in UI, but stored as timestamp here)
+const DEFAULT_START_DATE = new Date("2025-02-01").getTime();
+
 let lang = "eng";
 let currentDataset = 'lcb'; // 'lcb', 'lcb_agentic', 'lcb_pro'
 let allData = [];
@@ -1603,7 +1609,14 @@ function renderNewsForLang() {
   if (!container) return;
   container.innerHTML = "";
 
-  newsData.forEach(entry => {
+  // Newest first
+  const sorted = [...newsData].sort((a, b) => {
+    const da = a.date.split('.').reverse().join('-');
+    const db = b.date.split('.').reverse().join('-');
+    return db.localeCompare(da);
+  });
+
+  sorted.forEach(entry => {
     const item = document.createElement("div");
     item.className = "news-item";
     item.innerHTML = `
@@ -1683,11 +1696,19 @@ async function loadAllData() {
 
     const records = parseJsonl(text);
     for (const rec of records) {
-      const key = `${rec.date}_${rec.task_id}`;
+      // Normalize date to day precision (start of local day) to avoid
+      // multiple timestamps mapping to the same calendar date
+      const ts = new Date(rec.date).getTime();
+      const d = new Date(ts);
+      d.setHours(0, 0, 0, 0);
+      const dayTs = d.getTime();
+
+      const key = `${dayTs}_${rec.task_id}`;
       if (!modelData[model][key]) {
         modelData[model][key] = {
           model,
-          date: rec.date,
+          // Store normalized timestamp instead of raw date string
+          date: dayTs,
           task_id: rec.task_id,
         };
         // Initialize all lang columns to 0
@@ -1719,7 +1740,7 @@ async function loadAllData() {
 
   console.log(`Loaded ${allData.length} rows from ${index.models.length} models`);
 
-  const dates = allData.map(r => new Date(r.date).getTime());
+  const dates = allData.map(r => r.date);
   dateMin = Math.min(...dates);
   dateMax = Math.max(...dates);
   startDate = dateMin;
@@ -1808,7 +1829,16 @@ function setupSliders() {
   const sE = document.getElementById("sliderEnd");
 
   [sS, sE].forEach(s => { s.min = 0; s.max = maxIdx; s.step = 1; });
-  sS.value = 0;
+  // Find first date that is on/after DEFAULT_START_DATE, fallback to earliest
+  let defaultStartIdx = 0;
+  for (let i = 0; i < uniqueDates.length; i++) {
+    if (uniqueDates[i] >= DEFAULT_START_DATE) {
+      defaultStartIdx = i;
+      break;
+    }
+  }
+
+  sS.value = defaultStartIdx;
   sE.value = maxIdx;
 
   const update = () => {

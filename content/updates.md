@@ -1,6 +1,9 @@
 ## 01.04.2026 — Updated leaderboard
 Added new models and refreshed scores across all languages.
 
+## 20.04.2026 — Beta: LCB-PRO-AGENTIC & LCB-PRO
+We released a beta version of the new **LCB-PRO-AGENTIC** and **LCB-PRO** benchmarks.
+
 ## 12.12.2025 — Added 4 languages
 Kotlin, PHP, Scala, and Ruby are now supported in the benchmark.
 

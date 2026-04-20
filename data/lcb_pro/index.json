@@ -1,19 +1,6 @@
 {
   "models": [
     {
-      "name": "GLM-4.5-Air",
-      "files": {
-        "python": "python.jsonl",
-        "cpp": "cpp.jsonl"
-      }
-    },
-    {
-      "name": "GLM-5-FP8",
-      "files": {
-        "python": "python.jsonl"
-      }
-    },
-    {
       "name": "MiniMax-M2.5",
       "files": {
         "python": "python.jsonl",

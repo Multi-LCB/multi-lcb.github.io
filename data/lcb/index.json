@@ -1352,6 +1352,19 @@
         "javascript": "javascript.jsonl",
         "ruby": "ruby.jsonl"
       }
+    },
+    {
+      "name": "GLM-4.5-Air",
+      "files": {
+        "python": "python.jsonl",
+        "cpp": "cpp.jsonl"
+      }
+    },
+    {
+      "name": "GLM-5-FP8",
+      "files": {
+        "python": "python.jsonl"
+      }
     }
   ]
 }
