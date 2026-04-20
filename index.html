@@ -1209,6 +1209,68 @@
         <div class="compare-chart-container" id="compareChartContainer">
           <canvas id="radarChart"></canvas>
         </div>
+        <!-- Scatter plot: model avg vs selected language -->
+        <div class="compare-chart-container" id="scatterChartContainer">
+          <div style="display: flex; flex-direction:column; gap:8px; margin-bottom: 8px;">
+            <h3 class="compare-barplot-title" style="margin-bottom: 0;" id="compareScatterTitle">pass@1[avg] vs pass@1[python]</h3>
+            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:12px; font-size:12px; color:#94a3b8;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span>Y-axis:</span>
+                <select id="scatterYSelect" style="background:#0f172a; color:#e2e8f0; border:1px solid #475569; border-radius:6px; padding:2px 6px; font-size:12px;">
+                  <option value="avg" selected>avg</option>
+                  <option value="python">python</option>
+                  <option value="javascript">javascript</option>
+                  <option value="typescript">typescript</option>
+                  <option value="java">java</option>
+                  <option value="c++">c++</option>
+                  <option value="c#">c#</option>
+                  <option value="go">go</option>
+                  <option value="rust">rust</option>
+                  <option value="ruby">ruby</option>
+                  <option value="php">php</option>
+                  <option value="kotlin">kotlin</option>
+                  <option value="scala">scala</option>
+                </select>
+              </div>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span>X-axis:</span>
+                <select id="scatterXSelect" style="background:#0f172a; color:#e2e8f0; border:1px solid #475569; border-radius:6px; padding:2px 6px; font-size:12px;">
+                  <option value="avg">avg</option>
+                  <option value="python" selected>python</option>
+                  <option value="javascript">javascript</option>
+                  <option value="typescript">typescript</option>
+                  <option value="java">java</option>
+                  <option value="c++">c++</option>
+                  <option value="c#">c#</option>
+                  <option value="go">go</option>
+                  <option value="rust">rust</option>
+                  <option value="ruby">ruby</option>
+                  <option value="php">php</option>
+                  <option value="kotlin">kotlin</option>
+                  <option value="scala">scala</option>
+                </select>
+              </div>
+              <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                <input type="checkbox" id="scatterShowAll" checked style="accent-color:#6366f1; width:14px; height:14px;" />
+                <span>show all</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                <input type="checkbox" id="scatterShowLabels" checked style="accent-color:#6366f1; width:14px; height:14px;" />
+                <span>show model names</span>
+              </label>
+            </div>
+            <!-- Scatter legend -->
+            <div style="display:flex; flex-wrap:wrap; gap:12px; font-size:11px; color:#64748b;">
+              <span>● all data + all langs</span>
+              <span>◇ partial data + all langs</span>
+              <span>□ all data + partial langs</span>
+              <span>△ partial data + partial langs</span>
+              <span style="color:#94a3b8;">colored = selected in spider</span>
+              <span style="color:#64748b;">gray = other models</span>
+            </div>
+          </div>
+          <canvas id="scatterChart"></canvas>
+        </div>
         <div class="compare-barplot-container" id="compareBarplotContainer">
           <h3 class="compare-barplot-title" data-text="compareBarplotTitle">Pass@1 by Month</h3>
           <canvas id="barplotChart" class="compare-barplot-canvas"></canvas>
@@ -2251,10 +2313,25 @@ let compareBarChart = null;
 let compareInitialized = false;
 let compareStartDate = 0, compareEndDate = 0;
 let compareSliderSetup = false;
+let scatterChart = null;
+let scatterYAxis = 'avg';     // Y-axis selector value
+let scatterXAxis = 'python';  // X-axis selector value
+let scatterShowAll = true;
+let scatterShowLabels = true;
+
+function getScatterTitle() {
+  const yLabel = scatterYAxis === 'avg' ? 'avg' : scatterYAxis;
+  const xLabel = scatterXAxis === 'avg' ? 'avg' : scatterXAxis;
+  return `pass@1[${yLabel}] vs pass@1[${xLabel}]`;
+}
+
+function getScatterKey(axis) {
+  return axis === 'avg' ? 'pass@1[avg]' : `pass@1[${axis}]`;
+}
 
 function getCompareSummary() {
   const filtered = allData.filter(r => {
-    const t = new Date(r.date).getTime();
+    const t = r.date;
     if (t < compareStartDate || t > compareEndDate) return false;
     // Filter by difficulty if available
     const difficulty = taskDifficulties[r.task_id];
@@ -2285,6 +2362,7 @@ function initCompare() {
   }
   renderCompareChips();
   renderRadarChart();
+  renderScatterChart();
   renderBarplotChart();
 }
 
@@ -2300,6 +2378,7 @@ function setupCompareReasoningFilter() {
         reasoningFilter = value;
         renderCompareChips();
         renderRadarChart();
+        renderScatterChart();
         renderBarplotChart();
         updateCompareSliderInfo();
       }
@@ -2333,6 +2412,7 @@ function setupCompareLangFilter() {
       if (cb.checked) activeLangs.add(l); else activeLangs.delete(l);
       renderCompareChips();
       renderRadarChart();
+      renderScatterChart();
       renderBarplotChart();
       updateCompareSliderInfo();
     });
@@ -2360,6 +2440,7 @@ function setupCompareDifficultyFilter() {
       else activeDifficulties.delete(diff);
       renderCompareChips();
       renderRadarChart();
+      renderScatterChart();
       renderBarplotChart();
       updateCompareSliderInfo();
     });
@@ -2391,6 +2472,7 @@ function setupComparePlatformFilter() {
       else activePlatforms.delete(platform);
       renderCompareChips();
       renderRadarChart();
+      renderScatterChart();
       renderBarplotChart();
       updateCompareSliderInfo();
     });
@@ -2437,6 +2519,7 @@ function setupCompareSliders() {
     // Re-render charts
     renderCompareChips();
     renderRadarChart();
+    renderScatterChart();
     renderBarplotChart();
   };
 
@@ -2472,6 +2555,174 @@ function updateCompareSliderInfo() {
     .replace("{to}", fmtDate(compareEndDate))
     .replace("{nModels}", nModels)
     .replace("{nLangs}", nLangs);
+}
+
+function renderScatterChart() {
+  const summary = getCompareSummary();
+  if (!summary.length) return;
+
+  const xKey = getScatterKey(scatterXAxis);
+  const yKey = getScatterKey(scatterYAxis);
+
+  // Determine base data: show all models or only selected in spider
+  const base = scatterShowAll ? summary : summary.filter(r => compareSelectedModels.includes(r.model));
+
+  // Compute maxTasks for full/partial data detection
+  const maxTasks = summary.length > 0 ? Math.max(...summary.map(r => r.n_task)) : 0;
+
+  // Build color map for selected models (matching spider chart colors)
+  const selectedColorMap = {};
+  compareSelectedModels.forEach((m, idx) => {
+    selectedColorMap[m] = COMPARE_COLORS[idx % COMPARE_COLORS.length].border;
+  });
+
+  const points = base.map(row => {
+    const xVal = row[xKey] ?? 0;
+    const yVal = row[yKey] ?? 0;
+    // Count non-zero languages for this model
+    let langCount = 0;
+    LANGUAGES.forEach(l => { if (row[`pass@1[${l}]`] > 0) langCount++; });
+    const allLangs = langCount >= 12;
+    const allData = row.n_task >= maxTasks;
+    return {
+      x: xVal, y: yVal,
+      model: row.model,
+      allData, allLangs,
+    };
+  }).filter(p => p.x > 0 || p.y > 0);
+
+  // Determine marker shape and color for each point
+  // Chart.js pointStyle: 'circle', 'rectRot' (diamond), 'rect' (square), 'triangle'
+  const pointStyles = points.map(p => {
+    if (p.allData && p.allLangs)   return 'circle';
+    if (!p.allData && p.allLangs)  return 'rectRot';   // ◇ diamond
+    if (p.allData && !p.allLangs)  return 'rect';       // □ square
+    return 'triangle';                                   // △
+  });
+
+  const bgColors = points.map(p => {
+    if (selectedColorMap[p.model]) return selectedColorMap[p.model];
+    return 'rgba(100, 116, 139, 0.5)'; // gray for non-selected
+  });
+  const borderColors = bgColors.slice();
+  const radii = points.map(() => 5);
+
+  const ctx = document.getElementById('scatterChart');
+  if (!ctx) return;
+
+  const isMobile = window.innerWidth <= 768;
+  const tickSize = isMobile ? 8 : 11;
+  const legendSize = isMobile ? 8 : 11;
+  const tooltipTitleSize = isMobile ? 9 : 13;
+  const tooltipBodySize = isMobile ? 8 : 12;
+
+  const xAxisLabel = scatterXAxis === 'avg' ? 'pass@1 avg' : `pass@1[${scatterXAxis}]`;
+  const yAxisLabel = scatterYAxis === 'avg' ? 'pass@1 avg' : `pass@1[${scatterYAxis}]`;
+
+  const chartData = {
+    datasets: [
+      // Diagonal y = x reference line
+      {
+        label: '_diagonal',
+        data: [{ x: 0, y: 0 }, { x: 100, y: 100 }],
+        borderColor: 'rgba(148, 163, 184, 0.5)',
+        borderWidth: 1, borderDash: [4, 4],
+        showLine: true,
+        pointRadius: 0, pointHoverRadius: 0,
+      },
+      // Model points
+      {
+        label: getScatterTitle(),
+        data: points,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        pointRadius: radii,
+        pointHoverRadius: 7,
+        pointStyle: pointStyles,
+        borderWidth: 1.5,
+      },
+    ],
+  };
+
+  if (scatterChart) {
+    scatterChart.data = chartData;
+    scatterChart.options.scales.x.title.text = xAxisLabel;
+    scatterChart.options.scales.y.title.text = yAxisLabel;
+    scatterChart.options.scales.x.ticks.font.size = tickSize;
+    scatterChart.options.scales.y.ticks.font.size = tickSize;
+    scatterChart.update('none');
+    return;
+  }
+
+  scatterChart = new Chart(ctx, {
+    type: 'scatter',
+    data: chartData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      animation: { duration: 400, easing: 'easeOutQuad' },
+      scales: {
+        x: {
+          title: { display: true, text: xAxisLabel, color: '#94a3b8', font: { family: "'Inter', sans-serif", size: tickSize, weight: '600' } },
+          min: 0, max: 100,
+          ticks: { color: '#94a3b8', font: { family: "'JetBrains Mono', monospace", size: tickSize }, callback: v => v + '%' },
+          grid: { color: 'rgba(51,65,85,0.6)' },
+        },
+        y: {
+          title: { display: true, text: yAxisLabel, color: '#94a3b8', font: { family: "'Inter', sans-serif", size: tickSize, weight: '600' } },
+          min: 0, max: 100,
+          ticks: { color: '#94a3b8', font: { family: "'JetBrains Mono', monospace", size: tickSize }, callback: v => v + '%' },
+          grid: { color: 'rgba(51,65,85,0.4)' },
+        },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,0.95)',
+          borderColor: '#475569', borderWidth: 1,
+          titleColor: '#e5e7eb', bodyColor: '#cbd5e1',
+          cornerRadius: 8, padding: 10,
+          titleFont: { family: "'Inter', sans-serif", size: tooltipTitleSize, weight: '600' },
+          bodyFont: { family: "'JetBrains Mono', monospace", size: tooltipBodySize },
+          filter: (item) => item.dataset.label !== '_diagonal',
+          callbacks: {
+            title: items => items.length ? items[0].raw.model : '',
+            label: item => {
+              const p = item.raw;
+              const yL = scatterYAxis === 'avg' ? 'avg' : scatterYAxis;
+              const xL = scatterXAxis === 'avg' ? 'avg' : scatterXAxis;
+              return [`${yL}: ${p.y.toFixed(1)}%`, `${xL}: ${p.x.toFixed(1)}%`];
+            },
+          },
+        },
+      },
+    },
+    plugins: [
+      {
+        id: 'scatterLabels',
+        afterDraw(chart) {
+          if (!scatterShowLabels) return;
+          const { ctx, chartArea } = chart;
+          const ds = chart.data.datasets[1];
+          if (!ds) return;
+          ctx.save();
+          ctx.font = `${isMobile ? 7 : 10}px 'JetBrains Mono', monospace`;
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ds.data.forEach((p, i) => {
+            const meta = chart.getDatasetMeta(1).data[i];
+            if (!meta || !p.model) return;
+            const { x, y } = meta.getProps(['x', 'y'], true);
+            if (x < chartArea.left || x > chartArea.right || y < chartArea.top || y > chartArea.bottom) return;
+            // Use model's color for label
+            ctx.fillStyle = ds.backgroundColor[i] || '#cbd5e1';
+            ctx.fillText(p.model, x + 6, y - 6);
+          });
+          ctx.restore();
+        },
+      },
+    ],
+  });
 }
 
 function renderCompareChips() {
@@ -2856,6 +3107,25 @@ document.addEventListener("DOMContentLoaded", () => {
   route();
   loadContent();
   loadAllData().catch(err => console.error("Failed to load data:", err));
+
+  // Scatter plot axis selectors
+  const updateScatter = () => {
+    const titleEl = document.getElementById('compareScatterTitle');
+    if (titleEl) titleEl.textContent = getScatterTitle();
+    renderScatterChart();
+  };
+
+  const selY = document.getElementById('scatterYSelect');
+  if (selY) selY.addEventListener('change', () => { scatterYAxis = selY.value; updateScatter(); });
+
+  const selX = document.getElementById('scatterXSelect');
+  if (selX) selX.addEventListener('change', () => { scatterXAxis = selX.value; updateScatter(); });
+
+  const cbAll = document.getElementById('scatterShowAll');
+  if (cbAll) cbAll.addEventListener('change', () => { scatterShowAll = cbAll.checked; renderScatterChart(); });
+
+  const cbLabels = document.getElementById('scatterShowLabels');
+  if (cbLabels) cbLabels.addEventListener('change', () => { scatterShowLabels = cbLabels.checked; renderScatterChart(); });
 });
 </script>
 </body>
