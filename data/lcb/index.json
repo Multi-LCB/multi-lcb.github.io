@@ -1031,7 +1031,7 @@
       }
     },
     {
-      "name": "gpt-oss-120B (High)",
+      "name": "Gpt-oss-120B (High)",
       "files": {
         "python": "python.jsonl",
         "php": "php.jsonl",
