@@ -1,5 +1,6 @@
 ---
 title: Multi LiveCodeBench 排行榜
+leaderboardDescription: "排行榜展示了各模型在 <b>MULTI-LCB</b>、<b>LCB-PRO</b> 和 <b>LCB-PRO-AGENTIC</b> 基准上的 <b>Pass@1</b> 分数。使用日期滑块选择按发布日期筛选的任务子集。通过语言、难度、平台和推理模式过滤器自定义视图。"
 dateRange: 日期范围
 filterLangs: "筛选语言："
 filterByDifficulty: "按难度筛选："

@@ -672,6 +672,27 @@
     }
     .hidden { display: none !important; }
 
+    /* ===== SECTION & CHART DESCRIPTIONS ===== */
+    .section-description, .chart-description {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #94a3b8;
+      text-align: left;
+      max-width: 900px;
+      margin: 0 auto 16px auto;
+      padding: 0 16px;
+    }
+    .section-description b, .chart-description b {
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+    .chart-divider {
+      border: none;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
+      margin: 32px 0;
+    }
+
     /* ===== COMPARE PAGE ===== */
     .compare-page {
       margin-top: 100px;
@@ -988,6 +1009,7 @@
     <!-- LEADERBOARD PAGE -->
     <div id="page-leaderboard" class="leaderboard-page hidden">
       <h2 class="leaderboard-title">Multi LiveCodeBench Leaderboard</h2>
+      <p class="section-description" data-text="leaderboardDescription"></p>
       <div class="leaderboard-wrapper">
         <!-- Dual range date slider -->
         <div class="slider-section">
@@ -1206,19 +1228,22 @@
             </div>
           </div>
         </div>
+        <p class="chart-description" data-text="compareRadarDesc"></p>
         <div class="compare-chart-container" id="compareChartContainer">
           <canvas id="radarChart"></canvas>
         </div>
+        <hr class="chart-divider" />
         <!-- Scatter plot: model avg vs selected language -->
+        <p class="chart-description" data-text="compareScatterDesc"></p>
         <div class="compare-chart-container" id="scatterChartContainer">
           <div style="display: flex; flex-direction:column; gap:8px; margin-bottom: 8px;">
-            <h3 class="compare-barplot-title" style="margin-bottom: 0;" id="compareScatterTitle">pass@1[avg] vs pass@1[python]</h3>
+            <h3 class="compare-barplot-title" style="margin-bottom: 0;" id="compareScatterTitle">pass@1: Python vs avg</h3>
             <div style="display:flex; flex-wrap:wrap; align-items:center; gap:12px; font-size:12px; color:#94a3b8;">
               <div style="display:flex; align-items:center; gap:6px;">
                 <span>Y-axis:</span>
                 <select id="scatterYSelect" style="background:#0f172a; color:#e2e8f0; border:1px solid #475569; border-radius:6px; padding:2px 6px; font-size:12px;">
-                  <option value="avg" selected>avg</option>
-                  <option value="python">python</option>
+                  <option value="avg">avg</option>
+                  <option value="python" selected>python</option>
                   <option value="javascript">javascript</option>
                   <option value="typescript">typescript</option>
                   <option value="java">java</option>
@@ -1235,8 +1260,8 @@
               <div style="display:flex; align-items:center; gap:6px;">
                 <span>X-axis:</span>
                 <select id="scatterXSelect" style="background:#0f172a; color:#e2e8f0; border:1px solid #475569; border-radius:6px; padding:2px 6px; font-size:12px;">
-                  <option value="avg">avg</option>
-                  <option value="python" selected>python</option>
+                  <option value="avg" selected>avg</option>
+                  <option value="python">python</option>
                   <option value="javascript">javascript</option>
                   <option value="typescript">typescript</option>
                   <option value="java">java</option>
@@ -1271,6 +1296,8 @@
           </div>
           <canvas id="scatterChart"></canvas>
         </div>
+        <hr class="chart-divider" />
+        <p class="chart-description" data-text="compareBarplotDesc"></p>
         <div class="compare-barplot-container" id="compareBarplotContainer">
           <h3 class="compare-barplot-title" data-text="compareBarplotTitle">Pass@1 by Month</h3>
           <canvas id="barplotChart" class="compare-barplot-canvas"></canvas>
@@ -1471,6 +1498,10 @@ async function loadContent() {
       reasoningAny:       lb.meta.reasoningAny        || 'Any',
       reasoningOnly:      lb.meta.reasoningOnly       || 'Only CoT',
       reasoningNo:        lb.meta.reasoningNo         || 'No CoT',
+      leaderboardDescription: lb.meta.leaderboardDescription || '',
+      compareRadarDesc:   cmp.meta.compareRadarDesc    || '',
+      compareScatterDesc: cmp.meta.compareScatterDesc  || '',
+      compareBarplotDesc: cmp.meta.compareBarplotDesc  || '',
     };
 
     newsData = parseUpdates(updText || '');
@@ -2081,7 +2112,9 @@ function summarize(data) {
     summary = summary.filter(r => !r.model.endsWith('_cot'));
   }
 
-  summary.sort((a, b) => b["pass@1[avg]"] - a["pass@1[avg]"]);
+  // lcb_agentic: default sort by python; others: by avg
+  const defaultSortKey = currentDataset === 'lcb_agentic' ? 'pass@1[python]' : 'pass@1[avg]';
+  summary.sort((a, b) => b[defaultSortKey] - a[defaultSortKey]);
   summary.forEach((r, i) => { r.modelIdx = i + 1; });
   return summary;
 }
@@ -2314,15 +2347,15 @@ let compareInitialized = false;
 let compareStartDate = 0, compareEndDate = 0;
 let compareSliderSetup = false;
 let scatterChart = null;
-let scatterYAxis = 'avg';     // Y-axis selector value
-let scatterXAxis = 'python';  // X-axis selector value
+let scatterYAxis = 'python';  // Y-axis selector value
+let scatterXAxis = 'avg';     // X-axis selector value
 let scatterShowAll = true;
 let scatterShowLabels = true;
 
 function getScatterTitle() {
-  const yLabel = scatterYAxis === 'avg' ? 'avg' : scatterYAxis;
-  const xLabel = scatterXAxis === 'avg' ? 'avg' : scatterXAxis;
-  return `pass@1[${yLabel}] vs pass@1[${xLabel}]`;
+  const yLabel = scatterYAxis === 'avg' ? 'pass@1 avg' : scatterYAxis;
+  const xLabel = scatterXAxis === 'avg' ? 'pass@1 avg' : scatterXAxis;
+  return `${yLabel} vs ${xLabel}`;
 }
 
 function getScatterKey(axis) {
@@ -2492,13 +2525,22 @@ function setupCompareSliders() {
   const maxIdx = uniqueDates.length - 1;
   if (maxIdx < 0) return;
 
-  compareStartDate = uniqueDates[0];
   compareEndDate = uniqueDates[maxIdx];
+
+  // Find first date that is on/after DEFAULT_START_DATE, same as leaderboard
+  let defaultCompareStartIdx = 0;
+  for (let i = 0; i < uniqueDates.length; i++) {
+    if (uniqueDates[i] >= DEFAULT_START_DATE) {
+      defaultCompareStartIdx = i;
+      break;
+    }
+  }
+  compareStartDate = uniqueDates[defaultCompareStartIdx];
 
   const sS = document.getElementById("compareSliderStart");
   const sE = document.getElementById("compareSliderEnd");
   [sS, sE].forEach(s => { s.min = 0; s.max = maxIdx; s.step = 1; });
-  sS.value = 0;
+  sS.value = defaultCompareStartIdx;
   sE.value = maxIdx;
 
   const update = () => {
@@ -2939,7 +2981,7 @@ function renderBarplotChart() {
       LANGUAGES.forEach(l => {
         const key = `pass@1[${l}]`;
         const val = mean(monthData.map(r => r[key] ?? 0)) * 100;
-        if (activeLangs.has(l)) { avgSum += val; avgCount++; }
+        if (activeLangs.has(l) && val > 0) { avgSum += val; avgCount++; }
       });
       return avgCount > 0 ? avgSum / avgCount : 0;
     });

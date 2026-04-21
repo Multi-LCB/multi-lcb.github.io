@@ -1,5 +1,6 @@
 ---
 title: לוח התוצאות Multi LiveCodeBench
+leaderboardDescription: "לוח התוצאות מציג ציוני <b>Pass@1</b> עבור מדדי <b>MULTI-LCB</b>, <b>LCB-PRO</b> ו-<b>LCB-PRO-AGENTIC</b> עבור מודלים שונים. השתמשו במחוון התאריכים לבחירת תת-קבוצת משימות לפי תאריך פרסום. החילו מסננים לפי שפה, קושי, פלטפורמה ומצב חשיבה."
 dateRange: טווח תאריכים
 filterLangs: "סינון שפות:"
 filterByDifficulty: "סינון לפי קושי:"
