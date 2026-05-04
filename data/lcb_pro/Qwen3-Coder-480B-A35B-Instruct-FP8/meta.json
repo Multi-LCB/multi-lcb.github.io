@@ -1,1 +1,1 @@
-{"temperature": 0.7, "top_k": 0.8, "reasoning": false, "pass_at_n": 5}
+{"reasoning": false, "top_p": 0.8, "temperature": 0.7, "pass_at_n": 5}
