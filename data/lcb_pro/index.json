@@ -88,7 +88,17 @@
       "name": "Qwen3.6-35B-A3B",
       "files": {
         "python": "python.jsonl",
-        "cpp": "cpp.jsonl"
+        "php": "php.jsonl",
+        "kotlin": "kotlin.jsonl",
+        "csharp": "csharp.jsonl",
+        "typescript": "typescript.jsonl",
+        "go": "go.jsonl",
+        "rust": "rust.jsonl",
+        "cpp": "cpp.jsonl",
+        "java": "java.jsonl",
+        "scala": "scala.jsonl",
+        "javascript": "javascript.jsonl",
+        "ruby": "ruby.jsonl"
       }
     },
     {
