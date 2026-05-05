@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -833,13 +832,13 @@
       color: #64748b; font-size: 15px; font-weight: 500;
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1200px) {
       .hamburger-group { display: flex; }
       .header-desktop-links, .header-desktop-nav { display: none !important; }
       .mobile-menu, .mobile-lang-menu { display: flex; }
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1200px) {
       .filters-toggle { display: flex; }
       .filters-container { max-height: 0; }
       .filters-container.active { max-height: 2000px; }
@@ -946,6 +945,9 @@
       <a class="nav-btn" href="#/news" id="navNews">
         📰 <span data-text="news">News</span>
       </a>
+      <a class="nav-btn" href="https://mera-evaluation.github.io/demo-swe-mera/" target="_blank" id="navSwemera">
+        🔬 <span>SWE-MERA</span>
+      </a>
       <div class="lang-toggle" id="langToggle">
         <button id="btnEng" class="active" onclick="setLang('eng')">ENG</button>
         <button id="btnRu" onclick="setLang('ru')">RU</button>
@@ -978,6 +980,9 @@
     </a>
     <a class="nav-btn" href="#/news" id="navNewsMobile" onclick="closeMobileMenu()">
       📰 <span data-text="news">News</span>
+    </a>
+    <a class="nav-btn" href="https://mera-evaluation.github.io/demo-swe-mera/" target="_blank" onclick="closeMobileMenu()">
+      🔬 <span>SWE-MERA</span>
     </a>
   </div>
 
@@ -1097,7 +1102,7 @@
               </div>
             </div>
 
-            <!-- Show old/del models checkbox -->
+            <!-- Show old/del models checkbox (disabled — always hidden now)
             <div class="lang-filter">
               <span class="lang-filter-title" style="visibility: hidden;">.</span>
               <div class="lang-chip">
@@ -1109,6 +1114,7 @@
                 <label for="cb-show-del" style="font-size: 13px; color: #f59e0b;" data-text="showDelModels">Show _del* models</label>
               </div>
             </div>
+            -->
           </div>
         </div>
 
@@ -2095,15 +2101,8 @@ function summarize(data) {
     return result;
   });
 
-  // Filter out _old* models if showOldModels is false
-  if (!showOldModels) {
-    summary = summary.filter(r => !r.model.startsWith('_old'));
-  }
-
-  // Filter out _del* models if showDelModels is false
-  if (!showDelModels) {
-    summary = summary.filter(r => !r.model.startsWith('_del'));
-  }
+  // Always filter out _old* and _del* models
+  summary = summary.filter(r => !r.model.startsWith('_old') && !r.model.startsWith('_del'));
 
   // Filter by reasoning (CoT) if not 'any'
   if (reasoningFilter === 'only') {
