@@ -1365,6 +1365,142 @@
       "files": {
         "python": "python.jsonl"
       }
+    },
+    {
+      "name": "GLM-4.7",
+      "files": {
+        "python": "python.jsonl",
+        "php": "php.jsonl",
+        "kotlin": "kotlin.jsonl",
+        "csharp": "csharp.jsonl",
+        "typescript": "typescript.jsonl",
+        "go": "go.jsonl",
+        "rust": "rust.jsonl",
+        "cpp": "cpp.jsonl",
+        "java": "java.jsonl",
+        "scala": "scala.jsonl",
+        "javascript": "javascript.jsonl",
+        "ruby": "ruby.jsonl"
+      }
+    },
+    {
+      "name": "GLM-5.1-FP8",
+      "files": {
+        "python": "python.jsonl",
+        "php": "php.jsonl",
+        "kotlin": "kotlin.jsonl",
+        "csharp": "csharp.jsonl",
+        "typescript": "typescript.jsonl",
+        "go": "go.jsonl",
+        "rust": "rust.jsonl",
+        "cpp": "cpp.jsonl",
+        "java": "java.jsonl",
+        "scala": "scala.jsonl",
+        "javascript": "javascript.jsonl",
+        "ruby": "ruby.jsonl"
+      }
+    },
+    {
+      "name": "MiniMax-M2.7",
+      "files": {
+        "python": "python.jsonl",
+        "php": "php.jsonl",
+        "kotlin": "kotlin.jsonl",
+        "csharp": "csharp.jsonl",
+        "typescript": "typescript.jsonl",
+        "go": "go.jsonl",
+        "rust": "rust.jsonl",
+        "cpp": "cpp.jsonl",
+        "java": "java.jsonl",
+        "scala": "scala.jsonl",
+        "javascript": "javascript.jsonl",
+        "ruby": "ruby.jsonl"
+      }
+    },
+    {
+      "name": "Nemotron-Cascade-14B-Thinking",
+      "files": {
+        "python": "python.jsonl",
+        "php": "php.jsonl",
+        "kotlin": "kotlin.jsonl",
+        "csharp": "csharp.jsonl",
+        "typescript": "typescript.jsonl",
+        "go": "go.jsonl",
+        "rust": "rust.jsonl",
+        "cpp": "cpp.jsonl",
+        "java": "java.jsonl",
+        "scala": "scala.jsonl",
+        "javascript": "javascript.jsonl",
+        "ruby": "ruby.jsonl"
+      }
+    },
+    {
+      "name": "Ouro-1.4B-Thinking",
+      "files": {
+        "python": "python.jsonl",
+        "php": "php.jsonl",
+        "kotlin": "kotlin.jsonl",
+        "csharp": "csharp.jsonl",
+        "typescript": "typescript.jsonl",
+        "go": "go.jsonl",
+        "rust": "rust.jsonl",
+        "cpp": "cpp.jsonl",
+        "java": "java.jsonl",
+        "scala": "scala.jsonl",
+        "javascript": "javascript.jsonl",
+        "ruby": "ruby.jsonl"
+      }
+    },
+    {
+      "name": "Ouro-2.6B-Thinking",
+      "files": {
+        "python": "python.jsonl",
+        "php": "php.jsonl",
+        "kotlin": "kotlin.jsonl",
+        "csharp": "csharp.jsonl",
+        "typescript": "typescript.jsonl",
+        "go": "go.jsonl",
+        "rust": "rust.jsonl",
+        "cpp": "cpp.jsonl",
+        "java": "java.jsonl",
+        "scala": "scala.jsonl",
+        "javascript": "javascript.jsonl",
+        "ruby": "ruby.jsonl"
+      }
+    },
+    {
+      "name": "Qwen3-Coder-Next",
+      "files": {
+        "python": "python.jsonl",
+        "php": "php.jsonl",
+        "kotlin": "kotlin.jsonl",
+        "csharp": "csharp.jsonl",
+        "typescript": "typescript.jsonl",
+        "go": "go.jsonl",
+        "rust": "rust.jsonl",
+        "cpp": "cpp.jsonl",
+        "java": "java.jsonl",
+        "scala": "scala.jsonl",
+        "javascript": "javascript.jsonl",
+        "ruby": "ruby.jsonl"
+      }
+    },
+    {
+      "name": "Qwen3.6-35B-A3B",
+      "files": {
+        "python": "python.jsonl",
+        "php": "php.jsonl",
+        "kotlin": "kotlin.jsonl",
+        "csharp": "csharp.jsonl",
+        "typescript": "typescript.jsonl",
+        "go": "go.jsonl",
+        "rust": "rust.jsonl",
+        "cpp": "cpp.jsonl",
+        "java": "java.jsonl",
+        "scala": "scala.jsonl",
+        "javascript": "javascript.jsonl",
+        "ruby": "ruby.jsonl"
+      }
     }
   ]
 }
