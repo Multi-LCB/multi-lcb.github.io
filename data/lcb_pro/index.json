@@ -271,23 +271,6 @@
         "ruby": "ruby.jsonl"
       }
     },
-  {
-      "name": "Qwen3-4B-Thinking-2507",
-      "files": {
-        "python": "python.jsonl",
-        "php": "php.jsonl",
-        "kotlin": "kotlin.jsonl",
-        "csharp": "csharp.jsonl",
-        "typescript": "typescript.jsonl",
-        "go": "go.jsonl",
-        "rust": "rust.jsonl",
-        "cpp": "cpp.jsonl",
-        "java": "java.jsonl",
-        "scala": "scala.jsonl",
-        "javascript": "javascript.jsonl",
-        "ruby": "ruby.jsonl"
-      }
-    },    
     {
       "name": "Qwen3-4B-Thinking-2507",
       "files": {
